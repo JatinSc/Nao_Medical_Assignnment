@@ -16,10 +16,11 @@ export const Header = ({ onOpenInfo }) => {
         </div>
         <button 
           onClick={onOpenInfo}
-          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-          aria-label="Information and Privacy"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+          aria-label="Open User Guide"
         >
-          <Info size={24} />
+          <Info size={18} />
+          <span className="text-sm font-medium">User Guide</span>
         </button>
       </div>
     </header>

@@ -14,15 +14,6 @@ if (apiKey) {
   client = new OpenAI({ apiKey });
 }
 
-const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 8000);
-
-const withTimeout = async (promiseFactory, ms = AI_TIMEOUT_MS) => {
-  return Promise.race([
-    promiseFactory(),
-    new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), ms))
-  ]);
-};
-
 const ensureClient = () => {
   if (!client) {
     return null;
@@ -41,14 +32,14 @@ export async function enhanceTranscript(text) {
   }
   let out = '';
   try {
-    const resp = await withTimeout(() => c.chat.completions.create({
+    const resp = await c.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are a medical transcription enhancer. Improve accuracy, expand abbreviations, fix grammar, and retain clinical meaning without inventing details.' },
         { role: 'user', content: `Transcript:\n${text}\nReturn only the improved transcript.` }
       ],
       temperature: 0.2
-    }));
+    });
     out = resp?.choices?.[0]?.message?.content?.trim();
   } catch (e) {
     out = text.trim();
@@ -77,7 +68,7 @@ export async function translate(text, targetLang) {
   }
   let out = '';
   try {
-    const resp = await withTimeout(() => c.chat.completions.create({
+    const resp = await c.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: `You are a strict medical translator. Output MUST be in ${langName} only. Do not echo the source language. Correct minor source errors silently for clinical accuracy.` },
@@ -85,11 +76,11 @@ export async function translate(text, targetLang) {
       ],
       temperature: 0.2,
       max_tokens: 256
-    }));
+    });
     out = resp?.choices?.[0]?.message?.content?.trim();
   } catch (e) {
-    // Do not fallback to source text; surface timeout as error
-    throw new Error('Translation timed out');
+    const msg = e?.message || 'Translate failed';
+    throw new Error(msg);
   }
   return out || text.trim();
 }

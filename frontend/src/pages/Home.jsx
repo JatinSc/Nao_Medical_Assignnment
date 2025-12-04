@@ -19,6 +19,7 @@ function App() {
   const [error, setError] = useState('');
   const [enhancing, setEnhancing] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [translatePhase, setTranslatePhase] = useState('');
   const [autoSpeak, setAutoSpeak] = useState(true);
 
   const LANGUAGES = [
@@ -75,6 +76,28 @@ function App() {
     run();
     return () => { cancelled = true; };
   }, [debouncedTranscript, outputLang, autoSpeak]);
+
+  useEffect(() => {
+    if (!translating) {
+      setTranslatePhase('');
+      return;
+    }
+    setTranslatePhase('AI is working…');
+    const t1 = setTimeout(() => setTranslatePhase('Still working…'), 3000);
+    const t2 = setTimeout(() => setTranslatePhase('Almost there…'), 7000);
+    const t3 = setTimeout(() => setTranslatePhase('Finalizing…'), 12000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [translating]);
+
+    useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(''), 10000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   const handleToggleRecord = () => {
     if (!supported) return;
@@ -188,9 +211,9 @@ function App() {
                 title="Translated Text" 
                 content={translatedText} 
                 variant="translated"
-                isPlaceholder={translatedText.length === 0}
-                loading={translating}
-                loadingLabel="Translating…"
+               isPlaceholder={translatedText.length === 0}
+               loading={translating}
+                loadingLabel={translatePhase || "Translating…"}
               />
             </div>
             
@@ -215,7 +238,15 @@ function App() {
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded shadow">{permissionError}</div>
       )}
       {error && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-800 px-4 py-2 rounded shadow">{error}</div>
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-800 px-3 py-2 rounded shadow flex items-center gap-2" role="alert">
+          <span className="text-sm">{error}</span>
+          <button onClick={() => setError('')} className="p-1 rounded text-red-800 hover:bg-red-200" aria-label="Dismiss error">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       )}
       <InfoModal 
         isOpen={showModal} 

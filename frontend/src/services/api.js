@@ -1,6 +1,7 @@
 // API client for backend endpoints. All AI calls go through the server to keep the API key secure.
 // Configure base URL via VITE_API_BASE_URL; defaults to local backend in development.
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// const BASE =  'http://localhost:3001';
 
 // Translate medical text to a target language
 export async function translate(text, targetLang) {
@@ -11,9 +12,7 @@ export async function translate(text, targetLang) {
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const raw = body.error || 'Translate failed';
-    const msg = /timeout/i.test(raw) ? 'Translation timed out. Please pause longer or retry.' : (res.status === 429 ? 'Rate limit reached. Please pause speaking and retry.' : raw);
-    throw new Error(msg);
+    throw new Error(body.error || 'Translate failed');
   }
   return res.json();
 }
