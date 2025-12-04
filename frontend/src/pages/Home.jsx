@@ -108,6 +108,19 @@ function App() {
     window.speechSynthesis.speak(utter);
   };
 
+  const handleClear = () => {
+    stop();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    reset();
+    setEnhancedTranscript('');
+    setTranslatedText('');
+    setLastProcessed('');
+    setError('');
+    setIsPlaying(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
       
@@ -186,6 +199,8 @@ function App() {
                 onClick={handleSpeak}
                 disabled={translatedText.length === 0 || translating}
                 isPlaying={isPlaying}
+                onClear={handleClear}
+                clearDisabled={enhancing || translating}
               />
               <p className="text-[10px] text-center text-gray-400 mt-2">
                 Verify critical medical information.

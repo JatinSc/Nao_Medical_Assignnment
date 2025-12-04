@@ -18,10 +18,7 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-// CORS restricted to configured frontend origin
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 app.use(cors({
-  origin: FRONTEND_ORIGIN,
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: false
 }));
